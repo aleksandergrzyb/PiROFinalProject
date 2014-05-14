@@ -2,7 +2,7 @@
 //  main.cpp
 //  PiROFinalProject
 //
-//  Created by Aleksander Grzyb on 13/05/14.
+//  Created by Aleksander Grzyb on 14/05/14.
 //  Copyright (c) 2014 Aleksander Grzyb. All rights reserved.
 //
 
@@ -19,7 +19,7 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studies/Semestr 8/Przetwarzanie i Rozpoznawanie Obrazow/Programy/PiROFinalProject/match.JPG");
+    Mat queryImage = imread("/Users/AleksanderGrzyb/Desktop/PiROFinalProject/Sample Images/Newspapers/object.JPG");
     int minHessian = 400;
     SurfDescriptorExtractor detector(minHessian);
     vector<KeyPoint> keyPoints;
@@ -30,4 +30,5 @@ int main(int argc, const char * argv[])
     waitKey(0);
     return 0;
 }
+
 

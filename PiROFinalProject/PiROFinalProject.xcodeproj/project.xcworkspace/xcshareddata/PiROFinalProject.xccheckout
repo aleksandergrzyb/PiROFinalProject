@@ -5,7 +5,7 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>B4BDA09C-8B1C-4CE4-9454-4B617C110B1F</string>
+	<string>C6CCB1EA-D66C-45A4-AE73-362817B6F859</string>
 	<key>IDESourceControlProjectName</key>
 	<string>PiROFinalProject</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -14,11 +14,11 @@
 		<string>https://github.com/AleksanderGrzyb/PiROFinalProject.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>PiROFinalProject.xcodeproj/project.xcworkspace</string>
+	<string>PiROFinalProject/PiROFinalProject.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>2C3AF727-0C73-475E-86AB-B3CD37B74902</key>
-		<string>../..</string>
+		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/AleksanderGrzyb/PiROFinalProject.git</string>
