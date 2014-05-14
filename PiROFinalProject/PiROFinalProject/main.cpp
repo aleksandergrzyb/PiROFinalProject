@@ -19,7 +19,7 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    Mat queryImage = imread("/Users/AleksanderGrzyb/Desktop/PiROFinalProject/Sample Images/Newspapers/object.JPG");
+    Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
     int minHessian = 400;
     SurfDescriptorExtractor detector(minHessian);
     vector<KeyPoint> keyPoints;
@@ -30,5 +30,4 @@ int main(int argc, const char * argv[])
     waitKey(0);
     return 0;
 }
-
 
