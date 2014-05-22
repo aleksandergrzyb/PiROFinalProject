@@ -155,7 +155,7 @@ int main(int argc, const char *argv[])
     
     // Loading quary image and scene image
     Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
-    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample2.JPG");
+    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample3.JPG");
     
     // Resizing
     resize(queryImage, queryImage, Size(queryImage.size().width * 0.3, queryImage.size().height * 0.3));
@@ -192,7 +192,7 @@ int main(int argc, const char *argv[])
     // Visualization of matches and found objects
     Mat matchImage, homography;
     vector<Point2f> objectCorners(4);
-    
+    showImage(queryImage);
     for (int y = 0; y < sceneImage.rows - windowHeight - 1; y = y + yStep) {
         for (int x = 0; x < sceneImage.cols - windowWidth - 1; x = x + xStep) {
             windowImage = sceneImage(Rect(x, y, windowWidth, windowHeight));
