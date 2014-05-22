@@ -53,6 +53,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		597F9F08192A7BBA00C6C3BD /* sample111.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = sample111.JPG; path = ../SampleImages/Newspapers/sample111.JPG; sourceTree = "<group>"; };
+		597F9F09192A7BBA00C6C3BD /* sample112.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = sample112.JPG; path = ../SampleImages/Newspapers/sample112.JPG; sourceTree = "<group>"; };
+		597F9F0A192A7BBA00C6C3BD /* sample121.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = sample121.JPG; path = ../SampleImages/Newspapers/sample121.JPG; sourceTree = "<group>"; };
+		597F9F0B192A7BBA00C6C3BD /* sample122.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = sample122.JPG; path = ../SampleImages/Newspapers/sample122.JPG; sourceTree = "<group>"; };
 		5996EEB71924109D0039BB9B /* PiROFinalProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PiROFinalProject; sourceTree = BUILT_PRODUCTS_DIR; };
 		5996EEBA1924109D0039BB9B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		5996EEBC1924109D0039BB9B /* PiROFinalProject.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = PiROFinalProject.1; sourceTree = "<group>"; };
@@ -218,6 +222,10 @@
 		5996EEFE192410DB0039BB9B /* Newspapers */ = {
 			isa = PBXGroup;
 			children = (
+				597F9F08192A7BBA00C6C3BD /* sample111.JPG */,
+				597F9F09192A7BBA00C6C3BD /* sample112.JPG */,
+				597F9F0A192A7BBA00C6C3BD /* sample121.JPG */,
+				597F9F0B192A7BBA00C6C3BD /* sample122.JPG */,
 				5996EEFF192410E70039BB9B /* object.JPG */,
 				5996EF00192410E70039BB9B /* sample1.JPG */,
 				5996EF01192410E70039BB9B /* sample2.JPG */,
@@ -407,6 +415,7 @@
 				5996EEC21924109D0039BB9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
