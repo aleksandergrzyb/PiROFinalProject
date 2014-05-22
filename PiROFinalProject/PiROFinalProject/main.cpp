@@ -52,6 +52,14 @@ void queryImageCorners(Mat& queryImage, vector<Point2f>& queryImageCorners)
     queryImageCorners[3] = cvPoint(0, queryImage.rows);
 }
 
+void drawLinesBetweenCornersInSceneImage(Mat& sceneImage, vector<Point2f>& sceneCorners, int xOffset, int yOffset)
+{
+    line(sceneImage, Point2f(sceneCorners[0].x + xOffset, sceneCorners[0].y + yOffset), Point2f(sceneCorners[1].x + xOffset, sceneCorners[1].y + yOffset), Scalar(0, 255, 0), 4);
+    line(sceneImage, Point2f(sceneCorners[1].x + xOffset, sceneCorners[1].y + yOffset), Point2f(sceneCorners[2].x + xOffset, sceneCorners[2].y + yOffset), Scalar(0, 255, 0), 4);
+    line(sceneImage, Point2f(sceneCorners[2].x + xOffset, sceneCorners[2].y + yOffset), Point2f(sceneCorners[3].x + xOffset, sceneCorners[3].y + yOffset), Scalar(0, 255, 0), 4);
+    line(sceneImage, Point2f(sceneCorners[3].x + xOffset, sceneCorners[3].y + yOffset), Point2f(sceneCorners[0].x + xOffset, sceneCorners[0].y + yOffset), Scalar(0, 255, 0), 4);
+}
+
 void drawLinesBetweenCornersInImage(Mat& image, vector<Point2f>& corners, int offsetInX, Scalar color)
 {
     line(image, corners[0] + Point2f(offsetInX, 0), corners[1] + Point2f(offsetInX, 0), color, 4);
@@ -117,11 +125,18 @@ bool queryObjectWasFound(vector<Point2f>& queryCorners, vector<Point2f>& objectC
     double downRatio = queryDownSideLength / objectDownSideLength;
     double leftRatio = queryLeftSideLength / objectLeftSideLength;
     
-    printf("upRatio: %f\n", upRatio);
-    printf("rightRatio: %f\n", rightRatio);
-    printf("downRatio: %f\n", downRatio);
-    printf("leftRatio: %f\n", leftRatio);
+//    printf("upRatio: %f\n", upRatio);
+//    printf("rightRatio: %f\n", rightRatio);
+//    printf("downRatio: %f\n", downRatio);
+//    printf("leftRatio: %f\n", leftRatio);
+//    printf("-------------------------\n");
     
+    if (isnan(upRatio) || isnan(rightRatio) || isnan(leftRatio) || isnan(downRatio)) {
+        return false;
+    }
+    if (isinf(upRatio) || isinf(rightRatio) || isinf(leftRatio) || isinf(downRatio)) {
+        return false;
+    }
     if (upRatio > rightRatio + acceptableError || upRatio < rightRatio - acceptableError) {
         return false;
     }
@@ -137,9 +152,10 @@ bool queryObjectWasFound(vector<Point2f>& queryCorners, vector<Point2f>& objectC
 
 int main(int argc, const char *argv[])
 {
+    
     // Loading quary image and scene image
     Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
-    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample3.JPG");
+    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample2.JPG");
     
     // Resizing
     resize(queryImage, queryImage, Size(queryImage.size().width * 0.3, queryImage.size().height * 0.3));
@@ -192,18 +208,18 @@ int main(int argc, const char *argv[])
                     bool objectWasFound = queryObjectWasFound(queryCorners, objectCorners);
                     if (objectWasFound) {
                         drawLinesBetweenCornersInImage(matchImage, objectCorners, queryImage.cols, Scalar(0, 255, 0));
+                        drawLinesBetweenCornersInSceneImage(sceneImage, objectCorners, x, y);
                     }
                     else {
                         drawLinesBetweenCornersInImage(matchImage, objectCorners, queryImage.cols, Scalar(255, 0, 0));
                     }
                 }
-                showImage(matchImage);
             }
             windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
         }
         windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
     }
-    
+    showImage(sceneImage);
     return 0;
 }
 
