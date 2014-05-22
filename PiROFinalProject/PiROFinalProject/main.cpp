@@ -7,6 +7,8 @@
 //
 
 #include <iostream>
+#include <stdio.h>
+#include <math.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -31,8 +33,8 @@ void sortMatchesToFindGoodOnes(vector<DMatch>& allMatches, int queryDesctiptorSi
             maxDistance = distance;
         }
     }
-    printf("Maximum distance: %f \n", maxDistance);
-    printf("Minimum distance: %f \n", minDistance);
+//    printf("Maximum distance: %f \n", maxDistance);
+//    printf("Minimum distance: %f \n", minDistance);
     
     // Draw only good matches (i.e. whose distance is less than 3 * minDistance)
     for (int i = 0; i < queryDesctiptorSize; i++) {
@@ -50,12 +52,12 @@ void queryImageCorners(Mat& queryImage, vector<Point2f>& queryImageCorners)
     queryImageCorners[3] = cvPoint(0, queryImage.rows);
 }
 
-void drawLinesBetweenCornersInImage(Mat& image, vector<Point2f>& corners, int offsetInX)
+void drawLinesBetweenCornersInImage(Mat& image, vector<Point2f>& corners, int offsetInX, Scalar color)
 {
-    line(image, corners[0] + Point2f(offsetInX, 0), corners[1] + Point2f(offsetInX, 0), Scalar(0, 255, 0), 4);
-    line(image, corners[1] + Point2f(offsetInX, 0), corners[2] + Point2f(offsetInX, 0), Scalar(0, 255, 0), 4);
-    line(image, corners[2] + Point2f(offsetInX, 0), corners[3] + Point2f(offsetInX, 0), Scalar(0, 255, 0), 4);
-    line(image, corners[3] + Point2f(offsetInX, 0), corners[0] + Point2f(offsetInX, 0), Scalar(0, 255, 0), 4);
+    line(image, corners[0] + Point2f(offsetInX, 0), corners[1] + Point2f(offsetInX, 0), color, 4);
+    line(image, corners[1] + Point2f(offsetInX, 0), corners[2] + Point2f(offsetInX, 0), color, 4);
+    line(image, corners[2] + Point2f(offsetInX, 0), corners[3] + Point2f(offsetInX, 0), color, 4);
+    line(image, corners[3] + Point2f(offsetInX, 0), corners[0] + Point2f(offsetInX, 0), color, 4);
 }
 
 void showImage(Mat& image)
@@ -95,14 +97,56 @@ void findMatches(Mat& queryDescriptor, Mat& sceneDescriptor, vector<DMatch>& mat
     }
 }
 
+bool queryObjectWasFound(vector<Point2f>& queryCorners, vector<Point2f>& objectCorners)
+{
+    bool wasQueryObjectFound = true;
+    double acceptableError = 0.8;
+    
+    double queryUpSideLength = sqrt(pow(queryCorners[0].x - queryCorners[1].x, 2.0) + pow(queryCorners[0].y - queryCorners[1].y, 2.0));
+    double queryRightSideLength = sqrt(pow(queryCorners[1].x - queryCorners[2].x, 2.0) + pow(queryCorners[1].y - queryCorners[2].y, 2.0));
+    double queryDownSideLength = sqrt(pow(queryCorners[2].x - queryCorners[3].x, 2.0) + pow(queryCorners[2].y - queryCorners[3].y, 2.0));
+    double queryLeftSideLength = sqrt(pow(queryCorners[3].x - queryCorners[0].x, 2.0) + pow(queryCorners[3].y - queryCorners[0].y, 2.0));
+    
+    double objectUpSideLength = sqrt(pow(objectCorners[0].x - objectCorners[1].x, 2.0) + pow(objectCorners[0].y - objectCorners[1].y, 2.0));
+    double objectRightSideLength = sqrt(pow(objectCorners[1].x - objectCorners[2].x, 2.0) + pow(objectCorners[1].y - objectCorners[2].y, 2.0));
+    double objectDownSideLength = sqrt(pow(objectCorners[2].x - objectCorners[3].x, 2.0) + pow(objectCorners[2].y - objectCorners[3].y, 2.0));
+    double objectLeftSideLength = sqrt(pow(objectCorners[3].x - objectCorners[0].x, 2.0) + pow(objectCorners[3].y - objectCorners[0].y, 2.0));
+    
+    double upRatio = queryUpSideLength / objectUpSideLength;
+    double rightRatio = queryRightSideLength / objectRightSideLength;
+    double downRatio = queryDownSideLength / objectDownSideLength;
+    double leftRatio = queryLeftSideLength / objectLeftSideLength;
+    
+    printf("upRatio: %f\n", upRatio);
+    printf("rightRatio: %f\n", rightRatio);
+    printf("downRatio: %f\n", downRatio);
+    printf("leftRatio: %f\n", leftRatio);
+    
+    if (upRatio > rightRatio + acceptableError || upRatio < rightRatio - acceptableError) {
+        return false;
+    }
+    if (upRatio > downRatio + acceptableError || upRatio < downRatio - acceptableError) {
+        return false;
+    }
+    if (upRatio > leftRatio + acceptableError || upRatio < leftRatio - acceptableError) {
+        return false;
+    }
+    
+    return wasQueryObjectFound;
+}
+
 int main(int argc, const char *argv[])
 {
     // Loading quary image and scene image
     Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
-    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample1.JPG");
+    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample3.JPG");
+    
+    // Resizing
+    resize(queryImage, queryImage, Size(queryImage.size().width * 0.3, queryImage.size().height * 0.3));
+    resize(sceneImage, sceneImage, Size(sceneImage.size().width * 0.3, sceneImage.size().height * 0.3));
     
     // Constant values
-    float windowRatio = 0.2;
+    float windowRatio = 0.4;
     float xStepRatio = 0.1;
     float yStepRatio = 0.1;
     
@@ -131,7 +175,7 @@ int main(int argc, const char *argv[])
     
     // Visualization of matches and found objects
     Mat matchImage, homography;
-    vector<Point2f> foundObjectCorners(4);
+    vector<Point2f> objectCorners(4);
     
     for (int y = 0; y < sceneImage.rows - windowHeight - 1; y = y + yStep) {
         for (int x = 0; x < sceneImage.cols - windowWidth - 1; x = x + xStep) {
@@ -144,15 +188,20 @@ int main(int argc, const char *argv[])
                 drawMatches(queryImage, queryKeypoints, windowImage, windowKeypoints, goodMatches, matchImage);
                 homographyForQueryInScene(goodMatches, queryKeypoints, windowKeypoints, homography);
                 if (homography.cols != 0 && homography.rows != 0) {
-                    perspectiveTransform(queryCorners, foundObjectCorners, homography);
+                    perspectiveTransform(queryCorners, objectCorners, homography);
+                    bool objectWasFound = queryObjectWasFound(queryCorners, objectCorners);
+                    if (objectWasFound) {
+                        drawLinesBetweenCornersInImage(matchImage, objectCorners, queryImage.cols, Scalar(0, 255, 0));
+                    }
+                    else {
+                        drawLinesBetweenCornersInImage(matchImage, objectCorners, queryImage.cols, Scalar(255, 0, 0));
+                    }
                 }
-                drawLinesBetweenCornersInImage(matchImage, foundObjectCorners, queryImage.cols);
-                resize(matchImage, matchImage, Size(matchImage.size().width * 0.3, matchImage.size().height * 0.3));
                 showImage(matchImage);
             }
-            windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); foundObjectCorners.clear();
+            windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
         }
-        windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); foundObjectCorners.clear();
+        windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
     }
     
     return 0;
