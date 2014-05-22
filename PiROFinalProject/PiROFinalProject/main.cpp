@@ -17,7 +17,7 @@
 using namespace cv;
 using namespace std;
 
-void findGoodMatches(vector<DMatch>& allMatches, int queryDesctiptorSize, vector<DMatch>& goodMatches)
+void sortMatchesToFindGoodOnes(vector<DMatch>& allMatches, int queryDesctiptorSize, vector<DMatch>& goodMatches)
 {
     // Calculation of maximum and minimum distances between keypoints
     double maxDistance = 0;
@@ -66,8 +66,7 @@ void showImage(Mat& image)
 
 void homographyForQueryInScene(vector<DMatch>& goodMatches, vector<KeyPoint>& queryKeypoints, vector<KeyPoint>& sceneKeypoints, Mat& homography)
 {
-    vector<Point2f> query;
-    vector<Point2f> scene;
+    vector<Point2f> query, scene;
     for (int i = 0; i < goodMatches.size(); i++) {
         query.push_back(queryKeypoints[goodMatches[i].queryIdx].pt);
         scene.push_back(sceneKeypoints[goodMatches[i].trainIdx].pt);
@@ -75,25 +74,25 @@ void homographyForQueryInScene(vector<DMatch>& goodMatches, vector<KeyPoint>& qu
     homography = findHomography(query, scene, RANSAC);
 }
 
-void detectKeypointsInImages(Mat& queryImage, Mat& sceneImage, vector<KeyPoint>& queryKeypoints, vector<KeyPoint>& sceneKeypoints)
+void detectKeypointsInImage(Mat& image, vector<KeyPoint>& keypoints)
 {
     int minHessian = 400;
     SurfFeatureDetector detector(minHessian);
-    detector.detect(queryImage, queryKeypoints);
-    detector.detect(sceneImage, sceneKeypoints);
+    detector.detect(image, keypoints);
 }
 
-void calculateDescriptorsForKeypoints(Mat& queryImage, Mat& sceneImage, vector<KeyPoint>& queryKeypoints, vector<KeyPoint>& sceneKeypoints, Mat& queryDescriptor, Mat& sceneDescriptor)
+void calculateDescriptorsForImageAndKeypoints(Mat& image, vector<KeyPoint>& keypoints, Mat& descriptor)
 {
     SurfDescriptorExtractor extractor;
-    extractor.compute(queryImage, queryKeypoints, queryDescriptor);
-    extractor.compute(sceneImage, sceneKeypoints, sceneDescriptor);
+    extractor.compute(image, keypoints, descriptor);
 }
 
 void findMatches(Mat& queryDescriptor, Mat& sceneDescriptor, vector<DMatch>& matches)
 {
     FlannBasedMatcher matcher;
-    matcher.match(queryDescriptor, sceneDescriptor, matches);
+    if (sceneDescriptor.rows != 0 && sceneDescriptor.cols != 0) {
+        matcher.match(queryDescriptor, sceneDescriptor, matches);
+    }
 }
 
 int main(int argc, const char *argv[])
@@ -102,47 +101,60 @@ int main(int argc, const char *argv[])
     Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
     Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample1.JPG");
     
-    // Resizing images
-    resize(queryImage, queryImage, Size(queryImage.size().width * 0.3, queryImage.size().height * 0.3));
-    resize(sceneImage, sceneImage, Size(sceneImage.size().width * 0.3, sceneImage.size().height * 0.3));
+    // Constant values
+    float windowRatio = 0.2;
+    float xStepRatio = 0.1;
+    float yStepRatio = 0.1;
     
-    // Detect the keypoints using SURF Detector
-    vector<KeyPoint> queryKeypoints, sceneKeypoints;
-    detectKeypointsInImages(queryImage, sceneImage, queryKeypoints, sceneKeypoints);
-
-    // Calculate descriptors
-    Mat queryDescriptor, sceneDescriptor;
-    calculateDescriptorsForKeypoints(queryImage, sceneImage, queryKeypoints, sceneKeypoints, queryDescriptor, sceneDescriptor);
+    int xStep = sceneImage.cols * xStepRatio;
+    int yStep = sceneImage.rows * yStepRatio;
     
-    // Matching descriptor vectors using FLANN matcher
-    vector<DMatch> matches;
-    findMatches(queryDescriptor, sceneDescriptor, matches);
+    int windowWidth = queryImage.cols * windowRatio;
+    int windowHeight = queryImage.rows * windowRatio;
     
-    // Finding good matches
-    vector<DMatch> goodMatches;
-    findGoodMatches(matches, queryDescriptor.rows, goodMatches);
-    
-    // Drawing matches
-    Mat matchImage;
-    drawMatches(queryImage, queryKeypoints, sceneImage, sceneKeypoints, goodMatches, matchImage);
-    
-    // Localazing query
-    Mat homography;
-    homographyForQueryInScene(goodMatches, queryKeypoints, sceneKeypoints, homography);
+    // Keypoints and descriptor of query image
+    vector<KeyPoint> queryKeypoints;
+    Mat queryDescriptor;
+    detectKeypointsInImage(queryImage, queryKeypoints);
+    calculateDescriptorsForImageAndKeypoints(queryImage, queryKeypoints, queryDescriptor);
     
     // Getting corners of query image
     vector<Point2f> queryCorners(4);
     queryImageCorners(queryImage, queryCorners);
     
-    // Transfor corners by given homography
-    vector<Point2f> sceneCorners(4);
-    perspectiveTransform(queryCorners, sceneCorners, homography);
+    // Sliding window image, descriptor, keypoints
+    vector<KeyPoint> windowKeypoints;
+    Mat windowImage, windowDescriptor;
     
-    // Drawing lines between corners
-    drawLinesBetweenCornersInImage(matchImage, sceneCorners, queryImage.cols);
+    // Data structures for matches
+    vector<DMatch> allMatches, goodMatches;
     
-    // Presenting image
-    showImage(matchImage);
+    // Visualization of matches and found objects
+    Mat matchImage, homography;
+    vector<Point2f> foundObjectCorners(4);
+    
+    for (int y = 0; y < sceneImage.rows - windowHeight - 1; y = y + yStep) {
+        for (int x = 0; x < sceneImage.cols - windowWidth - 1; x = x + xStep) {
+            windowImage = sceneImage(Rect(x, y, windowWidth, windowHeight));
+            detectKeypointsInImage(windowImage, windowKeypoints);
+            calculateDescriptorsForImageAndKeypoints(windowImage, windowKeypoints, windowDescriptor);
+            findMatches(queryDescriptor, windowDescriptor, allMatches);
+            if (allMatches.size() > 0) {
+                sortMatchesToFindGoodOnes(allMatches, queryDescriptor.rows, goodMatches);
+                drawMatches(queryImage, queryKeypoints, windowImage, windowKeypoints, goodMatches, matchImage);
+                homographyForQueryInScene(goodMatches, queryKeypoints, windowKeypoints, homography);
+                if (homography.cols != 0 && homography.rows != 0) {
+                    perspectiveTransform(queryCorners, foundObjectCorners, homography);
+                }
+                drawLinesBetweenCornersInImage(matchImage, foundObjectCorners, queryImage.cols);
+                resize(matchImage, matchImage, Size(matchImage.size().width * 0.3, matchImage.size().height * 0.3));
+                showImage(matchImage);
+            }
+            windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); foundObjectCorners.clear();
+        }
+        windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); foundObjectCorners.clear();
+    }
+    
     return 0;
 }
 
