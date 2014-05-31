@@ -15,9 +15,20 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 using namespace cv;
 using namespace std;
+
+double getTime()
+{
+    struct timeval t;
+    struct timezone tzp;
+    gettimeofday(&t, &tzp);
+    return t.tv_sec + t.tv_usec * 1e-6;
+}
+
 
 void sortMatchesToFindGoodOnes(vector<DMatch>& allMatches, int queryDesctiptorSize, vector<DMatch>& goodMatches)
 {
@@ -87,13 +98,15 @@ void homographyForQueryInScene(vector<DMatch>& goodMatches, vector<KeyPoint>& qu
 void detectKeypointsInImage(Mat& image, vector<KeyPoint>& keypoints)
 {
     int minHessian = 400;
-    SurfFeatureDetector detector(minHessian);
+    SiftFeatureDetector detector(minHessian);
+//    SurfFeatureDetector detector(minHessian);
     detector.detect(image, keypoints);
 }
 
 void calculateDescriptorsForImageAndKeypoints(Mat& image, vector<KeyPoint>& keypoints, Mat& descriptor)
 {
-    SurfDescriptorExtractor extractor;
+    SiftDescriptorExtractor extractor;
+//    SurfDescriptorExtractor extractor;
     extractor.compute(image, keypoints, descriptor);
 }
 
@@ -154,8 +167,8 @@ int main(int argc, const char *argv[])
 {
     
     // Loading quary image and scene image
-    Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/object.JPG");
-    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Newspapers/sample3.JPG");
+    Mat queryImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Coffee/object2.png");
+    Mat sceneImage = imread("/Users/AleksanderGrzyb/Documents/Studia/Semestr_8/Przetwarzanie_i_Rozpoznawanie_Obrazow/Programy/PiROFinalProject/SampleImages/Coffee/1.JPG");
     
     // Resizing
     resize(queryImage, queryImage, Size(queryImage.size().width * 0.3, queryImage.size().height * 0.3));
@@ -171,6 +184,8 @@ int main(int argc, const char *argv[])
     
     int windowWidth = queryImage.cols * windowRatio;
     int windowHeight = queryImage.rows * windowRatio;
+    
+    double startTime = getTime();
     
     // Keypoints and descriptor of query image
     vector<KeyPoint> queryKeypoints;
@@ -192,7 +207,7 @@ int main(int argc, const char *argv[])
     // Visualization of matches and found objects
     Mat matchImage, homography;
     vector<Point2f> objectCorners(4);
-    showImage(queryImage);
+//    showImage(queryImage);
     for (int y = 0; y < sceneImage.rows - windowHeight - 1; y = y + yStep) {
         for (int x = 0; x < sceneImage.cols - windowWidth - 1; x = x + xStep) {
             windowImage = sceneImage(Rect(x, y, windowWidth, windowHeight));
@@ -201,7 +216,7 @@ int main(int argc, const char *argv[])
             findMatches(queryDescriptor, windowDescriptor, allMatches);
             if (allMatches.size() > 0) {
                 sortMatchesToFindGoodOnes(allMatches, queryDescriptor.rows, goodMatches);
-                drawMatches(queryImage, queryKeypoints, windowImage, windowKeypoints, goodMatches, matchImage);
+//                drawMatches(queryImage, queryKeypoints, windowImage, windowKeypoints, goodMatches, matchImage);
                 homographyForQueryInScene(goodMatches, queryKeypoints, windowKeypoints, homography);
                 if (homography.cols != 0 && homography.rows != 0) {
                     perspectiveTransform(queryCorners, objectCorners, homography);
@@ -213,12 +228,17 @@ int main(int argc, const char *argv[])
                     else {
                         drawLinesBetweenCornersInImage(matchImage, objectCorners, queryImage.cols, Scalar(255, 0, 0));
                     }
+//                    showImage(matchImage);
                 }
             }
             windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
         }
         windowKeypoints.clear(); allMatches.clear(); goodMatches.clear(); objectCorners.clear();
     }
+    double endTime = getTime();
+    
+    printf("Processing time: %f", endTime - startTime);
+    
     showImage(sceneImage);
     return 0;
 }

@@ -97,6 +97,12 @@
 		5996EF05192410F30039BB9B /* allRed.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = allRed.JPG; path = ../SampleImages/Matches/allRed.JPG; sourceTree = "<group>"; };
 		5996EF06192410F30039BB9B /* match.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = match.JPG; path = ../SampleImages/Matches/match.JPG; sourceTree = "<group>"; };
 		5996EF07192410F30039BB9B /* redWithNoise.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = redWithNoise.JPG; path = ../SampleImages/Matches/redWithNoise.JPG; sourceTree = "<group>"; };
+		59D867851937286E00E62B85 /* 1.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1.JPG; path = ../SampleImages/Patterns/1.JPG; sourceTree = "<group>"; };
+		59D867861937286E00E62B85 /* 2.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 2.JPG; path = ../SampleImages/Patterns/2.JPG; sourceTree = "<group>"; };
+		59D867871937286E00E62B85 /* 3.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 3.JPG; path = ../SampleImages/Patterns/3.JPG; sourceTree = "<group>"; };
+		59D867881937286E00E62B85 /* object.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = object.JPG; path = ../SampleImages/Patterns/object.JPG; sourceTree = "<group>"; };
+		59D8678A1937D4D300E62B85 /* 1.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1.JPG; path = ../SampleImages/Coffee/1.JPG; sourceTree = "<group>"; };
+		59D8678B1937D4D300E62B85 /* object.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = object.png; path = ../SampleImages/Coffee/object.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +174,8 @@
 		5996EEC3192410B50039BB9B /* SampleImages */ = {
 			isa = PBXGroup;
 			children = (
+				59D867891937D4C400E62B85 /* Coffee */,
+				59D867841937280B00E62B85 /* Patterns */,
 				5996EEFE192410DB0039BB9B /* Newspapers */,
 				5996EEFD192410D70039BB9B /* Matches */,
 			);
@@ -234,6 +242,26 @@
 				5996EF04192410E70039BB9B /* sample5.JPG */,
 			);
 			name = Newspapers;
+			sourceTree = "<group>";
+		};
+		59D867841937280B00E62B85 /* Patterns */ = {
+			isa = PBXGroup;
+			children = (
+				59D867851937286E00E62B85 /* 1.JPG */,
+				59D867861937286E00E62B85 /* 2.JPG */,
+				59D867871937286E00E62B85 /* 3.JPG */,
+				59D867881937286E00E62B85 /* object.JPG */,
+			);
+			name = Patterns;
+			sourceTree = "<group>";
+		};
+		59D867891937D4C400E62B85 /* Coffee */ = {
+			isa = PBXGroup;
+			children = (
+				59D8678A1937D4D300E62B85 /* 1.JPG */,
+				59D8678B1937D4D300E62B85 /* object.png */,
+			);
+			name = Coffee;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
