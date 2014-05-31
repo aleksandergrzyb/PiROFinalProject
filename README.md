@@ -5,9 +5,10 @@ This is final project of Image Processing and Recognition course.
 
 The main topic of final project is to create application that would detect all occurrences of given object on given photo.
 
-## Working example:
+## Working example
 
 **Object to be found:**
+
 ![Detected newspapers on sample image](http://cl.ly/image/3S472i310O2m/Screen%20Shot%202014-05-22%20at%2021.52.43%20.png)
 
 **Detected newspapers on a sample image:**
